@@ -3,8 +3,8 @@ class Config:
     SECRET_KEY = "some-key" or os.environ.get('SECRET_KEY')
     DEBUG = False
     DB_NAME = 'gis_support' or os.environ.get('DB_NAME')
-    DB_HOST = '0.0.0.0' or os.environ.get('DB_HOST')
-    DB_PORT = 5433 or os.environ.get('DB_PORT')
+    DB_HOST = '172.18.0.2' or os.environ.get('DB_HOST')
+    DB_PORT = 5432 or os.environ.get('DB_PORT')
     DB_USER = "postgres" or os.environ.get('DB_USER')
     DB_PASSWD = "gis_support" or os.environ.get('DB_PASSWD')
 
