@@ -2,19 +2,27 @@ version: '3'
 services:
   database:
     image: postgres:latest
-    container_name: postgres
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=gis_support
       - POSTGRES_DB=gis_support
     ports:
-      - "5432:5432"
-  
+      - 5432:5432
+    networks:
+      - nw-inside
+        
   flask:
-      build: .
-      volumes:
-        - ../. :/usr/src/app
-      depends_on:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+        - 8000:5000
+    depends_on:
         - database
-      ports:
-      - "8000:5000"
+    networks:
+      - nw-inside
+
+
+networks:
+  nw-inside:
+    driver: bridge

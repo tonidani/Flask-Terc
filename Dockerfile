@@ -4,8 +4,11 @@ RUN apt update && apt install -y dnsutils
 WORKDIR /usr/src/app
 RUN pip install -r requirements.txt
 ENV FLASK_APP=run.py
-RUN flask create_tables
-RUN flask import_data
+RUN tail -f /dev/null
 
 
-CMD ["deploy.sh"]
+#RUN flask create_tables
+#RUN flask import_data
+
+
+#CMD ["deploy.sh"]
