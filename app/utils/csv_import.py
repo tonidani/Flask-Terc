@@ -1,4 +1,5 @@
 import pandas as pd
+from app.utils.import_geojson import import_data_form_geojson
 from app.models.commune import Commune
 from app.models.voivodeship import Voivodeship
 from app.models.district import District
@@ -39,12 +40,14 @@ def import_data_form_csv():
             #gmi = [(Gmina(gmi=row[2], rodz=row[3], nazwa=row[4]).save()) for i, row in df.iterrows() if row[3] is not None]
 
             #OPCJA3 (najlepsza dla mnie) sprawdznie nr pol pola woj gmi rodz zastępując puste wartość (nan) na '' - jezeli jest puste no to wiadomo co jest czym.
-            voi = [(Voivodeship(name=row[4], voivodeship_number=row[0]).save()) for i, row in df.iterrows() if ((row[1] == '') and (row[2] == '') and (row[3] == ''))]
+            
+            #, bbox_minx=round(import_data_form_geojson(row[0])[1][0], 5), bbox_miny=round(import_data_form_geojson(row[0])[1][1], 5), bbox_maxx=round(import_data_form_geojson(row[0])[1][2], 5), bbox_maxy=round(import_data_form_geojson(row[0])[1][3], 5)
+            voi = [(Voivodeship(name=row[4], voivodeship_number=row[0], geometry=import_data_form_geojson(row[0])[0]).save()) for i, row in df.iterrows() if ((row[1] == '') and (row[2] == '') and (row[3] == ''))]
             dist = [(District(voivodeship=int(row[0]), district_number=int(row[1]), name=str(row[4])).save()) for i, row in df.iterrows() if ((row[2] and row[3])  == '' and (row[1] != ''))]
             com = [(Commune(commune=int(row[2]), type=int(row[3]), name=str(row[4]), voivodeship=int(row[0]), district=int(row[1])).save()) for i, row in df.iterrows() if (row[3] and row[2]) != '']
 
-            print(f'Voivodeship added: {voi}')
-            print(f'District added: {dist}')
-            print(f'Commune added: {com}')
+            print(f'Voivodeship added to db!')
+            print(f'District added to db!')
+            print(f'Commune added to db!')
 
 

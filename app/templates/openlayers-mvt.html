@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.12.0/css/ol.css" type="text/css">
+    <style>
+      .map {
+        height: 400px;
+        width: 100%;
+      }
+    </style>
+    <script src="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.12.0/build/ol.js"></script>
+    <title>OpenLayers example</title>
+  </head>
+  <body>
+    <h2>My Map</h2>
+    <div id="map" class="map"></div>
+    <script type="text/javascript">
+
+
+
+
+
+
+
+var map = new ol.Map({
+                target: "map",
+                view: new ol.View({
+                    center: [1253220.67184,5430658.10783],
+                    zoom: 0
+                }),
+                layers: [
+                    new ol.layer.Tile({
+                        source: new ol.source.OSM()
+                    }),
+                    new ol.layer.VectorTile({
+                        source: new ol.source.VectorTile({
+                            format: new ol.format.MVT(),
+                            url: "{{ url_for('api_v1.voivodeships_tiles') }}/{z}/{x}/{y}"
+                        }),
+                        style: function(feature, res) {
+                            return new ol.style.Style({
+                                stroke: new ol.style.Stroke({
+                                    width: 2,
+                                    color: 'rgba(0, 102, 204)'
+                                })
+                            })
+                        }
+                    })
+                ]
+            });
+
+
+
+
+    </script>
+  </body>
+</html>

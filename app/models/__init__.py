@@ -1,5 +1,5 @@
-from flask_peewee.db import *
-from ..extensions import db
+from flask_peewee.db import Model
+from app.extensions import db
 
 class BaseModelMixin(Model):
     class Meta:
@@ -8,6 +8,11 @@ class BaseModelMixin(Model):
 
     def get_all(self, page):
         all = self.select().paginate(page, 10)
+
+        return [i.serialize for i in all]
+
+    def get_all_no_paginate(self):
+        all = self.select()
 
         return [i.serialize for i in all]
 

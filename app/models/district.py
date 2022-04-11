@@ -1,8 +1,5 @@
-import mailcap
-
-import six
-
-from app.models import *
+from app.models import BaseModelMixin
+from flask_peewee.db import CharField, IntegerField, ForeignKeyField
 from app.models.voivodeship import Voivodeship
 
 class District(BaseModelMixin):

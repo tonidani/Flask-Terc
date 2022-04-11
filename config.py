@@ -1,14 +1,17 @@
 import os
+
+
 class Config:
     SECRET_KEY = "some-key" or os.environ.get('SECRET_KEY')
     DEBUG = False
     DB_NAME = 'gis_support' or os.environ.get('DB_NAME')
-    DB_HOST = 'database' or os.environ.get('DB_HOST')
+    DB_HOST = 'db' or os.environ.get('DB_HOST')
     DB_PORT = 5432 or os.environ.get('DB_PORT')
     DB_USER = "postgres" or os.environ.get('DB_USER')
     DB_PASSWD = "gis_support" or os.environ.get('DB_PASSWD')
 
-    TESTING = False
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+    CACHE_PATH = os.path.join(BASE_DIR,'cache')
 
     DATABASE = {
         'name': DB_NAME,
@@ -31,5 +34,6 @@ class Config:
         "version": "1.0.1"
     }
 
+    template_folder = os.path.abspath('app/front/templates')
 
 

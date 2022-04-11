@@ -12,7 +12,7 @@ from app.models.commune import Commune
 from app.models.district import District
 
 
-def create_app(Config, testing=True):
+def create_app(Config=Config, testing=True):
 
     app = Flask(__name__)
 
@@ -41,12 +41,15 @@ def create_app(Config, testing=True):
 
 
     from app.api.views import api_v1
+    from app.front.views import front
     app.register_blueprint(api_v1, url_prefix='/v1/api')
+    app.register_blueprint(front, url_prefix='/front')
 
 
     from app import cli
     app.cli.add_command(cli.create_tables)
     app.cli.add_command(cli.import_data)
+    app.cli.add_command(cli.delete_tables)
 
     return app
 

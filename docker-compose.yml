@@ -1,28 +1,34 @@
-version: '3'
+version: '3.3'
+
 services:
+  flask:
+    container_name: flask-api
+    build:
+      context: ./
+      dockerfile: ./docker/api/Dockerfile
+    command: wait4db
+    environment:
+      FLASK_DEBUG: "on"
+    volumes:
+      - ./:/usr/src/app
+    restart: always
+    ports:
+      - 80:4444
+    env_file:
+      - ./.env
+    depends_on:
+    - database
+  
   database:
-    image: postgres:latest
+    container_name: db
+    build:
+      context: ./
+      dockerfile: ./docker/db/Dockerfile
     environment:
       - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=gis_support
-      - POSTGRES_DB=gis_support
+      - POSTGRES_PASS=gis_support
+      - POSTGRES_DBNAME=gis_support
     ports:
-      - 5432:5432
-    networks:
-      - nw-inside
+      - 6666:5432
+ 
         
-  flask:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    ports:
-        - 8000:5000
-    depends_on:
-        - database
-    networks:
-      - nw-inside
-
-
-networks:
-  nw-inside:
-    driver: bridge

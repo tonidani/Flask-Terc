@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.14.1/css/ol.css" type="text/css">
+    <style>
+      .map {
+        height: 400px;
+        width: 100%;
+      }
+    </style>
+    <script src="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.14.1/build/ol.js"></script>
+    <title>OpenLayers example</title>
+  </head>
+  <body>
+    <h2>My Map</h2>
+    <div id="map" class="map"></div>
+    <script type="text/javascript">
+
+
+
+
+
+
+
+function fetchData(_callback){
+  var geojson = fetch('/v1/api/wojewodztwa/geo').then(response => response.json())
+  return geojson   
+    
+}
+
+const drawMap = async () => {
+  const geojson = await fetchData()
+  console.log(geojson)
+  var features = new ol.format.GeoJSON().readFeatures(geojson, {
+    featureProjection: 'EPSG:3857'
+});
+
+var source = new ol.source.Vector();
+source.addFeatures(features);
+
+var map = new ol.Map({
+  layers: [
+      new ol.layer.Tile({
+          source: new ol.source.OSM(),
+      }),
+      new ol.layer.Vector({
+        source : source
+          
+        })
+  ],
+  target: 'map',
+  view: new ol.View({
+    center: [51.9194, 19.1451],
+    zoom: 10
+  })
+})
+    
+    
+}
+
+
+drawMap()
+
+
+
+
+    </script>
+  </body>
+</html>

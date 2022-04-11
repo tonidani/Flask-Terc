@@ -3,6 +3,7 @@ import click
 from app.models.voivodeship import *
 from app.models.commune import *
 from app.models.district import *
+from app.extensions import db
 
 @click.command(name='create_tables')
 @with_appcontext
@@ -31,7 +32,21 @@ def create_admin():
 @with_appcontext
 def import_data():
     'import data from TERC file'
+    try:
+        print('Importing data: +- 35secs')
+        from .utils.csv_import import import_data_form_csv
+        import_data_form_csv()
+    except:
+        print('Imported')
+    
 
-    from .utils.csv_import import import_data_form_csv
-    import_data_form_csv()
+@click.command(name='delete_tables')
+@with_appcontext
+def delete_tables():
+    try:
+        MODELS = (Voivodeship, Commune, District)
+        db.drop_tables(MODELS)
+        print("drop in tables")
+    except:
+        print("some issue")
 

@@ -1,9 +1,13 @@
+
+from app.models import voivodeship
 from .errors import *
 from app.models.voivodeship import Voivodeship
 from app.models.commune import Commune
 from app.models.district import District
+from app.utils.mvt import MvtTile
 
-from flask import jsonify, request, abort
+
+from flask import jsonify, request, abort, make_response
 from flask.views import MethodView
 
 from flasgger import swag_from
@@ -100,6 +104,205 @@ class VoivodeshipsView(MethodView):
 
         return res
 
+
+class VoivodeshipsGeoIntView(MethodView):
+    def get(self, id):
+        """
+        Get a list of Voivodeships in Poland
+
+        ---
+        tags:
+          - wojewodztwa
+
+
+
+        components:
+          schemas:
+            User:
+              properties:
+                id:
+                  type: integer
+                name:
+                   type: string
+
+        parameters:
+          - name: page
+            in: path
+            type: integer
+            required: false
+            description: Numer of the paginated resource
+
+        definitions:
+          Voivodeship:
+            type: object
+            properties:
+              id:
+                type: integer
+              name:
+                type: string
+              woj:
+                type: integer
+
+          Error:
+              type: object
+              properties:
+                 error:
+                    type: string
+                 url :
+                    type: string
+                 status_code:
+                    type: integer
+
+
+        responses:
+          200:
+            description: Returns a list of voivodeships
+            schema:
+                type: array
+                items:
+                    $ref: '#/definitions/Voivodeship'
+
+          400:
+            description: errors
+            schema:
+                type: array
+                items:
+                    $ref: '#/definitions/Error'
+
+        """
+
+
+        result = Voivodeship.select().where(Voivodeship.voivodeship_number == id).get()
+
+
+        
+        if result:
+            res = jsonify(
+                {
+                  "type": "FeatureCollection",
+                  "name": str(result.name),
+                  "crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:EPSG::3857" } },
+                  "features": 
+                  [
+                    { "type": "Feature", "properties": 
+                      { "JPT_KOD_JE" : str(id)},
+                        'geometry': result.serialize_geometry()
+                      
+                    }
+                  ]
+                }
+                  
+            )
+
+            res.status_code = 200
+
+        else:
+            abort(404)
+        
+
+        return res
+
+
+class VoivodeshipsGeoView(MethodView):
+    def get(self):
+        """
+        Get a list of Voivodeships in Poland
+
+        ---
+        tags:
+          - wojewodztwa
+
+
+
+        components:
+          schemas:
+            User:
+              properties:
+                id:
+                  type: integer
+                name:
+                   type: string
+
+        parameters:
+          - name: page
+            in: path
+            type: integer
+            required: false
+            description: Numer of the paginated resource
+
+        definitions:
+          Voivodeship:
+            type: object
+            properties:
+              id:
+                type: integer
+              name:
+                type: string
+              woj:
+                type: integer
+
+          Error:
+              type: object
+              properties:
+                 error:
+                    type: string
+                 url :
+                    type: string
+                 status_code:
+                    type: integer
+
+
+        responses:
+          200:
+            description: Returns a list of voivodeships
+            schema:
+                type: array
+                items:
+                    $ref: '#/definitions/Voivodeship'
+
+          400:
+            description: errors
+            schema:
+                type: array
+                items:
+                    $ref: '#/definitions/Error'
+
+        """
+
+
+        result = Voivodeship.select()
+        if result:
+
+          temp_list = [{ "type": "Feature", "properties": { "JPT_KOD_JE" : str(voivodeship.voivodeship_number)}, "geometry": voivodeship.serialize_geometry() } for voivodeship in result]
+
+          res = jsonify({
+                  "type": "FeatureCollection",
+                  "name": "Voivodeships",
+                  "crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:EPSG::3857" } },
+                  'features': temp_list
+                })
+
+
+
+          res.status_code = 200
+
+        else:
+            abort(404)
+        
+
+        return res
+
+class VoivodeshipTilesView(MethodView):
+  def get(self, z=0, x=0, y=0):
+    mvt_tile = MvtTile(z, x, y)
+
+    if mvt_tile.get_mvt_coordinates() is not None:
+      response = make_response(mvt_tile.get_mvt_coordinates())
+      response.headers['Content-Type'] = "application/octet-stream"
+    else:
+      response = make_response('no tile', 204)
+    
+    return response
 
 class DistrictsView(MethodView):
     def get(self, page=1):
@@ -354,6 +557,13 @@ class StatsView(MethodView):
 
 
 api_v1.add_url_rule('/wojewodztwa', view_func=VoivodeshipsView.as_view('voivodeships'))
+
+api_v1.add_url_rule('/wojewodztwa/geo', view_func=VoivodeshipsGeoView.as_view('voivodeships_geo'))
+api_v1.add_url_rule('/wojewodztwa/geo/<int:id>', view_func=VoivodeshipsGeoIntView.as_view('voivodeships_geo_int'))
+
+api_v1.add_url_rule('/wojewodztwa/tiles', view_func=VoivodeshipTilesView.as_view('voivodeships_tiles'))
+api_v1.add_url_rule('/wojewodztwa/tiles/<int:z>/<int:x>/<int:y>', view_func=VoivodeshipTilesView.as_view('voivodeships_tiles_args'))
+
 
 api_v1.add_url_rule('/wojewodztwa/<int:page>', view_func=VoivodeshipsView.as_view('voivodeships_page'))
 

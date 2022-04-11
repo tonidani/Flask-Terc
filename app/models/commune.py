@@ -1,4 +1,5 @@
-from app.models import *
+from flask_peewee.db import CharField, IntegerField, ForeignKeyField
+from app.models import BaseModelMixin
 from app.models.voivodeship import Voivodeship
 from app.models.district import District
 
