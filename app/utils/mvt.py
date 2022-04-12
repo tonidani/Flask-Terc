@@ -84,12 +84,12 @@ class MvtTile:
             tiles_query = Voivodeship.select(
                 Voivodeship.id, Voivodeship.name, 
                 fn.ST_AsMVTGeom(
-                    Voivodeship.geometry,
-                    fn.TileBBox(self.z,self.x,self.y, 3857),
-                    4096, 50, "true"))
+                    fn.ST_Transform(Voivodeship.geometry, 3857),
+                    fn.TileBBox(self.x,self.y, self.z, 3857),
+                    4096, 50, "true")).where(fn.ST_Intersects(fn.ST_Transform(Voivodeship.geometry,3857),  fn.TileBBox(self.x,self.y,self.z, 3857)))
 
             sql = "SELECT ST_AsMVT(tile) FROM ({}) as tile;".format(query_to_string(tiles_query))
-            query = db.execute_sql(sql)
+            query = db.execute_sql(sql) 
             tile = query.fetchone()[0]
             if not tile:
                 return None
